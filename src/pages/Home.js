@@ -16,7 +16,7 @@ function Home() {
         </Link>
         <Link
           to='/explore-events'
-          className='px-6 py-2 bg-green-500 text-white rounded-lg'
+          className='px-6 py-2 bg-pink-500 text-white rounded-lg'
         >
           Explore Events
         </Link>

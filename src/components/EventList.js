@@ -7,7 +7,6 @@ const EventList = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
-    // Fetch events from local storage when component mounts
     const storedEvents = JSON.parse(localStorage.getItem('events')) || [];
     setEvents(storedEvents);
   }, []);
@@ -22,7 +21,7 @@ const EventList = () => {
 
   return (
     <div className='p-4'>
-      <Navbar /> 
+      <Navbar />
       <div className='min-h-screen bg-gray-100 flex flex-col items-center justify-start px-4 pt-10 sm:pt-12'>
         <div className='w-full max-w-5xl bg-white p-6 rounded-lg shadow-lg mt-4'>
           <h2 className='text-xl font-semibold mb-2'>Delhi NCR</h2>
@@ -36,12 +35,21 @@ const EventList = () => {
                 className='bg-white shadow-md rounded-lg overflow-hidden transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-xl cursor-pointer'
                 onClick={() => handleCardClick(event)}
               >
-                {/* Event Image */}
-                {event.media && (
-                  <img
+                {/* Event Media */}
+                {event.mediaType === 'video' ? (
+                  <video
+                    id='previewVideo'
                     src={event.media}
+                    className='w-full h-48 object-cover rounded-lg'
                     alt='Event'
-                    className='w-full h-48 object-cover'
+                    controls
+                  />
+                ) : (
+                  <img
+                    id='previewImage'
+                    src={event.media}
+                    className='w-full h-48 object-cover rounded-lg'
+                    alt='Event'
                   />
                 )}
 
@@ -62,7 +70,7 @@ const EventList = () => {
 
                   {/* Event Time & Location */}
                   <p className='text-sm text-gray-600 flex items-center gap-1 mt-2'>
-                    ⏰ {event.startTime}
+                    ⏰ {new Date(event.startTime).toLocaleString()}
                   </p>
                   <p className='text-sm text-gray-600 flex items-center gap-1'>
                     📍 {event.location || 'Delhi'}

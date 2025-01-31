@@ -15,7 +15,7 @@ function App() {
         <Route path='/create-event' element={<Eventform />} />
         <Route path='/explore-events' element={<EventList />} />
       </Routes>
-         <ClearLocalStorageButton />
+         {/* <ClearLocalStorageButton /> */}
     </Router>
   );
 }

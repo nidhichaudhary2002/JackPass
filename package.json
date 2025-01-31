@@ -2,6 +2,7 @@
   "name": "eventlister",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://nidhichaudhary2002.github.io/JackPass",
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.1",
     "cra-template": "1.2.0",
@@ -15,6 +16,8 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
+   "predeploy": "npm run build",
+   "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

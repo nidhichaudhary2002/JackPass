@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { FaCheckCircle } from 'react-icons/fa'; 
+import { FaCheckCircle } from 'react-icons/fa';
 import Notification from './Notification';
 
 const LargeCard = ({ event, onClose }) => {
-  const [notification, setNotification] = useState(''); 
+  const [notification, setNotification] = useState('');
 
   const handleBookClick = () => {
     const message = `Hoorah! It's gonna be fun at ${event.title}`;
-      setNotification(message); 
+    setNotification(message);
     setTimeout(() => {
       onClose();
-    }, 500); 
+    }, 500);
   };
 
   return (
@@ -21,17 +21,26 @@ const LargeCard = ({ event, onClose }) => {
       {/* Background blur effect */}
       <div
         className='absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm'
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       ></div>
 
       {/* Modal Content */}
       <div className='relative bg-white w-4/5 sm:w-3/5 lg:w-2/5 p-8 rounded-lg shadow-lg z-60'>
         {/* Enlarged Event Image */}
-        {event.media && (
-          <img
+        {event.mediaType === 'video' ? (
+          <video
+            id='previewVideo'
             src={event.media}
+            className='w-full h-48 object-cover rounded-lg'
             alt='Event'
-            className='w-full h-72 object-cover mb-4'
+            controls
+          />
+        ) : (
+          <img
+            id='previewImage'
+            src={event.media}
+            className='w-full h-48 object-cover rounded-lg'
+            alt='Event'
           />
         )}
 

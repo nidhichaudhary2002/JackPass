@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from './Navbar';
+
 const Eventform = () => {
   const [eventData, setEventData] = useState({
     title: '',
@@ -8,6 +9,7 @@ const Eventform = () => {
     location: '',
     description: '',
     media: null,
+    mediaType: null, // Track whether it's an image or video
   });
   const [community, setCommunity] = useState('Indiranagar Run Club');
   const [previewMedia, setPreviewMedia] = useState(null);
@@ -24,48 +26,49 @@ const Eventform = () => {
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new Image();
-        img.onload = () => {
-          // Create a canvas to resize the image
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+      const mediaType = file.type.split('/')[0]; // 'image' or 'video'
 
-          // Desired aspect ratio (4:5)
-          const aspectRatio = 4 / 5;
-
-          // Calculate the new dimensions based on the image's natural width and height
-          let newWidth = img.width;
-          let newHeight = img.height;
-
-          // Adjust dimensions to maintain the 4:5 aspect ratio
-          if (img.width / img.height > aspectRatio) {
-            newWidth = img.height * aspectRatio;
-          } else {
-            newHeight = img.width / aspectRatio;
-          }
-
-          // Set canvas size to the new dimensions
-          canvas.width = newWidth;
-          canvas.height = newHeight;
-
-          // Draw the resized image onto the canvas
-          ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-          // Convert canvas to data URL
-          const resizedImage = canvas.toDataURL('image/jpeg');
-
-          // Set the resized image as the preview
-          setPreviewMedia(resizedImage);
+      if (mediaType === 'image') {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const aspectRatio = 4 / 5;
+            let newWidth = img.width;
+            let newHeight = img.height;
+            if (img.width / img.height > aspectRatio) {
+              newWidth = img.height * aspectRatio;
+            } else {
+              newHeight = img.width / aspectRatio;
+            }
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+            const resizedImage = canvas.toDataURL('image/jpeg');
+            setPreviewMedia(resizedImage);
+            setEventData((prevState) => ({
+              ...prevState,
+              media: resizedImage,
+              mediaType: 'image',
+            }));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      } else if (mediaType === 'video') {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewMedia(reader.result);
           setEventData((prevState) => ({
             ...prevState,
-            media: resizedImage,
+            media: reader.result,
+            mediaType: 'video',
           }));
         };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -93,6 +96,7 @@ const Eventform = () => {
       location: '',
       description: '',
       media: null,
+      mediaType: null,
     });
     setCommunity('Indiranagar Run Club');
     setPreviewMedia(null);
@@ -107,19 +111,35 @@ const Eventform = () => {
             Create New Event
           </h2>
 
-          <div className='relative bg-gradient-to-b from-gray-200 to-white rounded-lg p-6 flex flex-col items-center'>
-            <img
-              id='previewImage'
-              src={previewMedia || '/image_13406954.png'}
-              className='w-80 h-80 object-cover rounded-lg mb-4'
-              alt='Event'
-            />
+          <div className='relative bg-gradient-to-b from-gray-200 to-white rounded-lg p-6 flex flex-col items-center w-full h-80 sm:h-64 xs:h-48'>
+            {eventData.mediaType === 'video' ? (
+              <video
+                id='previewVideo'
+                src={previewMedia}
+                className='absolute top-0 left-0 w-full h-full object-cover rounded-lg'
+                alt='Event'
+                controls
+              />
+            ) : (
+              <img
+                id='previewImage'
+                src={previewMedia || '/image_13406954.png'}
+                className='absolute top-0 left-0 w-full h-full object-cover rounded-lg'
+                alt='Event'
+              />
+            )}
+
             <label
               htmlFor='photoUpload'
-              className='mt-2 px-4 py-2 bg-gray-200 text-gray-600 rounded cursor-pointer text-sm'
+              className='absolute bottom-4 px-4 py-2 bg-gray-200 text-gray-600 rounded cursor-pointer text-sm z-10'
             >
-              📸 Add Photo
+              {eventData.media
+                ? eventData.mediaType === 'video'
+                  ? '🎬 Replace Video'
+                  : '📸 Replace Photo'
+                : '📸 Add Media'}
             </label>
+
             <input
               type='file'
               id='photoUpload'
@@ -154,29 +174,30 @@ const Eventform = () => {
             placeholder='Enter event title'
             required
           />
+          <div className='w-full mt-4 flex flex-col md:flex-row md:space-x-4'>
+            <div className='w-full md:w-1/2 flex items-center space-x-4'>
+              <label className='text-sm text-gray-700'>Start </label>
+              <input
+                type='datetime-local'
+                name='startTime'
+                value={eventData.startTime}
+                onChange={handleChange}
+                className='p-3 border border-gray-400 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 w-full'
+                required
+              />
+            </div>
 
-          <div className='w-full mt-4 flex items-center space-x-4'>
-            <label className='text-sm text-gray-700'>Start </label>
-            <input
-              type='datetime-local'
-              name='startTime'
-              value={eventData.startTime}
-              onChange={handleChange}
-              className='p-3 border border-gray-400 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-              required
-            />
-          </div>
-
-          <div className='w-full mt-4 flex items-center space-x-4'>
-            <label className='text-sm text-gray-700'>End </label>
-            <input
-              type='datetime-local'
-              name='endTime'
-              value={eventData.endTime}
-              onChange={handleChange}
-              className='p-3 border border-gray-400 border-gray-400 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-              required
-            />
+            <div className='w-full md:w-1/2 flex items-center space-x-4 mt-4 md:mt-0'>
+              <label className='text-sm text-gray-700'>End </label>
+              <input
+                type='datetime-local'
+                name='endTime'
+                value={eventData.endTime}
+                onChange={handleChange}
+                className='p-3 border border-gray-400 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 w-full'
+                required
+              />
+            </div>
           </div>
 
           <div className='w-full items-center justify-between p-3'>
@@ -187,7 +208,7 @@ const Eventform = () => {
               name='location'
               value={eventData.location}
               onChange={handleChange}
-              className='w-full flex items-center justify-between p-3 border rounded-md focus:outline-none focus:ring-2 text-gray-400 text-sm'
+              className='w-full flex items-center justify-between p-3 focus:outline-none focus:ring-2 focus:ring-blue-500'
               placeholder='Enter a location'
               required
             />
